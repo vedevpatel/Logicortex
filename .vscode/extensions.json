@@ -1,0 +1,21 @@
+{
+  "recommendations": [
+    // General & DevOps
+    "ms-vscode-remote.remote-containers",
+    "ms-azuretools.vscode-docker",
+    "eamodio.gitlens",
+    "github.vscode-github-actions",
+
+    // Python Backend
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+    "ms-python.mypy-type-checker",
+
+    // React/TypeScript Frontend
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "dsznajder.es7-react-js-snippets"
+  ]
+}

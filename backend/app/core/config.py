@@ -1,16 +1,29 @@
 from pydantic_settings import BaseSettings
+from functools import lru_cache
 
 class Settings(BaseSettings):
     """
-    Application settings.
-    Reads settings from environment variables.
+    Application settings, loaded from environment variables in the .env file.
     """
-    SECRET_KEY: str = "a_very_secret_key_that_should_be_in_an_env_file"
+    # This is the line we are adding back
+    DATABASE_URL: str
+
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    DATABASE_URL: str = "postgresql://logicortex:secret@db/logicortex_dev"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
+    # OAuth Providers
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    GITHUB_CLIENT_ID: str
+    GITHUB_CLIENT_SECRET: str
 
     class Config:
+        env_file = ".env"
         case_sensitive = True
 
-settings = Settings()
+@lru_cache()
+def get_settings():
+    return Settings()
+
+settings = get_settings()

@@ -26,9 +26,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-       <footer className="text-center pt-16 text-gray-500">
-          <p>Project scaffolding successfully initialized. Ready for development.</p>
-      </footer>
     </div>
   );
 }

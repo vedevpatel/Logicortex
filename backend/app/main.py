@@ -24,6 +24,6 @@ async def read_root():
     """
     return {"status": "ok", "message": "Welcome to the Logicortex Backend!"}
 
-# Here you would include your API routers
+# API routers
 # from .api.endpoints import analysis
 # app.include_router(analysis.router, prefix="/api/v1/analysis", tags=["analysis"])

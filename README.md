@@ -30,7 +30,7 @@ This project is fully containerized. To get the development environment running,
 
 2.  **Clone the repository**:
     ```sh
-    git clone [https://github.com/YourUsername/logicortex.git](https://github.com/YourUsername/logicortex.git)
+    git clone [https://github.com/YourUsername/logicortex.git]
     cd logicortex
     ```
 

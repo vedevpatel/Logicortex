@@ -3,10 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.session import engine
 from app.db.base_class import Base
-from app.db.models import user
+
+# Import all models to ensure they are registered with SQLAlchemy
+from app.db.models import user, organization 
 
 # Import the new routers
-from app.api.endpoints import auth, oauth
+from app.api.endpoints import auth, oauth, organizations
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,8 +28,12 @@ app.add_middleware(
 
 @app.get("/")
 async def read_root():
+    """
+    Root endpoint to check if the service is running.
+    """
     return {"status": "ok", "message": "Welcome to the Logicortex Backend!"}
 
-# Include both routers
+# Include all routers
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(oauth.router, prefix="/api/v1/auth", tags=["oauth"])
+app.include_router(organizations.router, prefix="/api/v1/organizations", tags=["organizations"])

@@ -6,14 +6,11 @@
 # Log files
 *.log
 
-# --- VS Code ---
-# Ignore user-specific settings, but keep project-wide recommendations
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
 
 # --- Python / Backend ---
-# Byte-compiled / optimized / DLL files
 __pycache__/
 *.pyc
 *.pyo

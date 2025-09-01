@@ -1,4 +1,6 @@
+import Link from 'next/link';
 import { ShieldCheck, Code, BrainCircuit } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function HomePage() {
   return (
@@ -13,7 +15,22 @@ export default function HomePage() {
         <p className="text-lg md:text-xl text-gray-400">
           An autonomous application security platform acting as an intelligent partner in your development lifecycle.
         </p>
-        <div className="flex justify-center gap-4 pt-6">
+
+        {/* New Links to Login/Signup */}
+        <div className="pt-6 flex justify-center gap-4">
+            <Link href="/login" passHref>
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Login
+                </Button>
+            </Link>
+            <Link href="/signup" passHref>
+                <Button variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-500/10">
+                    Sign Up
+                </Button>
+            </Link>
+        </div>
+
+        <div className="flex justify-center gap-4 pt-12">
           <div className="p-6 bg-gray-800/50 rounded-lg border border-gray-700 w-72 text-left">
             <ShieldCheck className="h-8 w-8 text-green-400 mb-2" />
             <h2 className="text-xl font-semibold mb-1">Find Flaws</h2>
@@ -25,6 +42,7 @@ export default function HomePage() {
             <p className="text-gray-400">Automatically generate, test, and submit patches for review.</p>
           </div>
         </div>
+
       </div>
     </div>
   );

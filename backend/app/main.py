@@ -1,6 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# Import db and models
+from app.db.session import engine
+from app.db.base_class import Base
+from app.db.models import user # Ensure the user model is imported
+
+# Import the new router
+from app.api.endpoints import auth
+
+# Create all database tables on startup
+Base.metadata.create_all(bind=engine)
+
 # Create FastAPI app instance
 app = FastAPI(
     title="Logicortex API",
@@ -11,7 +22,8 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Allows the frontend to connect
+    # Allow all origins for now, can be restricted later
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,6 +36,5 @@ async def read_root():
     """
     return {"status": "ok", "message": "Welcome to the Logicortex Backend!"}
 
-# API routers
-# from .api.endpoints import analysis
-# app.include_router(analysis.router, prefix="/api/v1/analysis", tags=["analysis"])
+# Include the auth router
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])

@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Pulse + shift animation for cards or elements */
+@keyframes pulseShift {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+  }
+  50% {
+    transform: translateX(4px) scale(1.02);
+  }
+}
+
+.animate-pulseShift {
+  animation: pulseShift 3s ease-in-out infinite;
+}
+
+.bg-animate-optimized {
+  will-change: transform, background-position, opacity;
+}

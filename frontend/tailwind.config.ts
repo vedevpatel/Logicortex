@@ -4,7 +4,7 @@ const config = {
   darkMode: ["class"],
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-	],
+  ],
   prefix: "",
   theme: {
     container: {
@@ -24,10 +24,21 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        // Added for the aurora background effect
+        aurora: {
+          from: {
+            backgroundPosition: '0% 50%',
+          },
+          to: {
+            backgroundPosition: '300% 50%',
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        // Added for the aurora background effect
+        'aurora': 'aurora 60s linear infinite',
       },
     },
   },

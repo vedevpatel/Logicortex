@@ -1,0 +1,8 @@
+# Ignore node_modules for both services
+backend/node_modules
+frontend/node_modules
+
+# Ignore other artifacts
+.git
+.vscode
+**/__pycache__

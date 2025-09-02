@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, DateTime, func
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from typing import List
+from typing import List, Optional
 
 from app.db.base_class import Base
 
@@ -18,6 +18,9 @@ class Organization(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String, index=True)
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    
+    github_installation_id: Mapped[Optional[int]] = mapped_column(Integer, unique=True, nullable=True)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     owner: Mapped["User"] = relationship(back_populates="owned_organizations")

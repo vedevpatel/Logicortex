@@ -13,6 +13,7 @@ class OrganizationUpdate(BaseModel):
 class Organization(OrganizationBase):
     id: int
     owner_id: int
+    github_installation_id: Optional[int] = None
 
     class Config:
         from_attributes = True

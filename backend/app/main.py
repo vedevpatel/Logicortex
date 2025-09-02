@@ -8,7 +8,7 @@ from app.db.base_class import Base
 from app.db.models import user, organization 
 
 # Import the new routers
-from app.api.endpoints import auth, oauth, organizations
+from app.api.endpoints import auth, oauth, organizations, github
 
 Base.metadata.create_all(bind=engine)
 
@@ -37,3 +37,4 @@ async def read_root():
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(oauth.router, prefix="/api/v1/auth", tags=["oauth"])
 app.include_router(organizations.router, prefix="/api/v1/organizations", tags=["organizations"])
+app.include_router(github.router, prefix="/api/v1/github", tags=["github"])

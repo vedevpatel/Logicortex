@@ -39,29 +39,28 @@ const cardVariants = {
 
 export default function HomePage() {
   const brandName = "Logicortex";
-  // UPDATED tagline words
   const titleWords = ["Finds", "&", "Fixes", "Flaws", "Automatically"];
 
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-gray-900">
-      {/* Animated background from your implementation */}
+      {/* Animated background */}
       <motion.div
-        className="absolute inset-0 z-0 bg-animate-optimized"
+        className="absolute inset-0 z-0"
         style={{
           backgroundImage: `
-            radial-gradient(at 27% 29%, hsla(215,98%,60%,0.25) 0px, transparent 50%),
-            radial-gradient(at 73% 44%, hsla(265,98%,60%,0.2) 0px, transparent 50%),
-            radial-gradient(at 49% 94%, hsla(315,98%,60%,0.2) 0px, transparent 50%),
-            radial-gradient(ellipse 80% 80% at 50% -20%, rgba(120,119,198,0.3), rgba(255,255,255,0))
+            radial-gradient(at 25% 25%, hsla(215,98%,60%,0.4) 0px, transparent 50%),
+            radial-gradient(at 75% 35%, hsla(265,98%,60%,0.35) 0px, transparent 50%),
+            radial-gradient(at 50% 85%, hsla(315,98%,60%,0.35) 0px, transparent 50%),
+            radial-gradient(ellipse 80% 80% at 50% -20%, rgba(120,119,198,0.5), rgba(255,255,255,0))
           `,
           backgroundSize: "200% 200%",
         }}
         animate={{
-          backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-          scale: [1, 1.05, 1],
-          opacity: [0.85, 1, 0.85],
+          backgroundPosition: ["0% 0%", "100% 100%", "0% 100%", "100% 0%", "0% 0%"],
+          scale: [1, 1.12, 1, 1.12, 1],
+          opacity: [0.8, 1, 0.8, 1, 0.8],
         }}
-        transition={{ duration: 25, ease: "easeInOut", repeat: Infinity }}
+        transition={{ duration: 30, ease: "easeInOut", repeat: Infinity }}
       />
 
       {/* Main content */}
@@ -99,14 +98,13 @@ export default function HomePage() {
           >
             <span className="text-gray-300">The Security AI that </span>
             <span className="text-green-400">
-                {titleWords.map((word, index) => (
+              {titleWords.map((word, index) => (
                 <motion.span key={index} variants={itemVariants} className="inline-block mr-2 md:mr-3">
-                    {word}
+                  {word}
                 </motion.span>
-                ))}
+              ))}
             </span>
           </motion.p>
-
 
           {/* Sub-headline */}
           <motion.p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto pt-2" variants={itemVariants}>

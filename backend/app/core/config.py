@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str
     GITHUB_CLIENT_ID: str
     GITHUB_CLIENT_SECRET: str
+    GITHUB_APP_ID: str
+    GITHUB_PRIVATE_KEY: str
 
     class Config:
         env_file = ".env"

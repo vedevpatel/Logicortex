@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Label } from '@/components/ui/label';
 import { GoogleIcon, GitHubIcon } from '@/components/ui/icons';
 
 export default function SignupPage() {
@@ -25,8 +25,10 @@ export default function SignupPage() {
             body: JSON.stringify({ email, password }),
         });
 
-        if (response.ok) router.push('/login');
-        else {
+        if (response.ok) {
+            // Redirect to login after successful registration so the user can sign in
+            router.push('/login');
+        } else {
             const errorData = await response.json();
             setError(errorData.detail || 'Failed to sign up');
         }
@@ -51,15 +53,59 @@ export default function SignupPage() {
             >
                 <h1 className="text-3xl font-bold text-center text-white">Create your Account</h1>
                 
-                 {/* ... (social login buttons and separator are the same as login page) ... */}
+                {/* Social Login Buttons */}
+                <div className="space-y-4">
+                    <a href="http://localhost:8000/api/v1/auth/google/login" className="block">
+                        <Button variant="outline" className="w-full bg-white text-gray-700 hover:bg-gray-100 font-medium">
+                            <GoogleIcon /> Continue with Google
+                        </Button>
+                    </a>
+                    <a href="http://localhost:8000/api/v1/auth/github/login" className="block">
+                        <Button variant="outline" className="w-full bg-gray-900/80 text-white hover:bg-gray-700 font-medium border-gray-600">
+                            <GitHubIcon /> Continue with GitHub
+                        </Button>
+                    </a>
+                </div>
 
+                {/* Separator */}
+                <div className="flex items-center">
+                    <div className="flex-grow border-t border-gray-600"></div>
+                    <span className="mx-4 text-gray-500 text-sm">OR</span>
+                    <div className="flex-grow border-t border-gray-600"></div>
+                </div>
+
+                {/* Email Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
-                   {/* ... (email and password inputs are unchanged) ... */}
+                    <div>
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
+                            placeholder="you@company.com"
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
+                            placeholder="••••••••"
+                        />
+                    </div>
                     {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 transition-colors font-semibold">
                         Create Account
                     </Button>
                 </form>
+
                 <p className="text-center text-sm text-gray-400">
                     Already have an account?{" "}
                     <Link href="/login" className="font-medium text-blue-400 hover:underline">

@@ -1,4 +1,4 @@
-# --- General ---
+# Environment variables - DO NOT COMMIT THESE
 .env
 .env.*
 !.env.example
@@ -6,11 +6,14 @@
 # Log files
 *.log
 
+# --- VS Code ---
+# Ignore user-specific settings, but keep project-wide recommendations
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
 
 # --- Python / Backend ---
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.pyc
 *.pyo
@@ -29,8 +32,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/

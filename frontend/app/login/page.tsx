@@ -18,7 +18,21 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        // ... (rest of the submit logic is unchanged)
+
+        const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('jwt_token', data.access_token);
+            router.push('/dashboard');
+        } else {
+            const errorData = await response.json();
+            setError(errorData.detail || 'Failed to login');
+        }
     };
 
     return (
@@ -42,12 +56,12 @@ export default function LoginPage() {
                 
                 <div className="space-y-4">
                     <a href="http://localhost:8000/api/v1/auth/google/login" className="block">
-                        <Button variant="outline" className="w-full bg-white text-gray-700 hover:bg-gray-100">
+                        <Button variant="outline" className="w-full bg-white text-gray-700 hover:bg-gray-100 font-medium">
                             <GoogleIcon /> Continue with Google
                         </Button>
                     </a>
                     <a href="http://localhost:8000/api/v1/auth/github/login" className="block">
-                        <Button variant="outline" className="w-full bg-gray-900/80 text-white hover:bg-gray-700">
+                        <Button variant="outline" className="w-full bg-gray-900/80 text-white hover:bg-gray-700 font-medium border-gray-600">
                             <GitHubIcon /> Continue with GitHub
                         </Button>
                     </a>
@@ -60,9 +74,32 @@ export default function LoginPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* ... (email and password inputs are unchanged) ... */}
+                    <div>
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
+                            placeholder="you@company.com"
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
+                            placeholder="••••••••"
+                        />
+                    </div>
                     {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 transition-colors font-semibold">
                         Login
                     </Button>
                 </form>

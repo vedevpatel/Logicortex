@@ -22,26 +22,17 @@ export const Header = () => {
                 </div>
 
                 <div className="flex items-center space-x-4">
-                    {!isLoading && (
-                        isAuthenticated ? (
-                            <>
-                                <span className="text-sm text-gray-400 hidden sm:block">Welcome, {user?.email}</span>
-                                <Link href="/dashboard" passHref>
-                                    <Button variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-500/10">Dashboard</Button>
-                                </Link>
-                                <Button onClick={logout} variant="ghost" className="text-gray-400 hover:text-white">Logout</Button>
-                            </>
-                        ) : (
-                            <>
-                                <Link href="/login" passHref>
-                                    <Button variant="ghost" className="hover:bg-gray-800 hover:text-white">Login</Button>
-                                </Link>
-                                <Link href="/signup" passHref>
-                                    <Button className="bg-blue-600 hover:bg-blue-700">Sign Up</Button>
-                                </Link>
-                            </>
-                        )
+                    {/* --- THIS LOGIC IS NOW CHANGED --- */}
+                    {!isLoading && isAuthenticated && (
+                        <>
+                            <span className="text-sm text-gray-400 hidden sm:block">Welcome, {user?.email}</span>
+                            <Link href="/dashboard" passHref>
+                                <Button variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-500/10">Dashboard</Button>
+                            </Link>
+                            <Button onClick={logout} variant="ghost" className="text-gray-400 hover:text-white">Logout</Button>
+                        </>
                     )}
+                    {/* If loading or not authenticated, this section will be empty */}
                 </div>
             </nav>
         </header>

@@ -3,6 +3,8 @@
 import { ShieldCheck, Code, BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth"; // Import the auth hook
 
 // Parent container variants for staggering children
 const containerVariants = {
@@ -40,6 +42,7 @@ const cardVariants = {
 export default function HomePage() {
   const brandName = "Logicortex";
   const titleWords = ["Finds", "&", "Fixes", "Flaws", "Automatically"];
+  const { isAuthenticated } = useAuth(); // Get the authentication status
 
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-gray-900">
@@ -99,7 +102,11 @@ export default function HomePage() {
             <span className="text-gray-300">The Security AI that </span>
             <span className="text-green-400">
               {titleWords.map((word, index) => (
-                <motion.span key={index} variants={itemVariants} className="inline-block mr-2 md:mr-3">
+                <motion.span
+                  key={index}
+                  variants={itemVariants}
+                  className="inline-block mr-2 md:mr-3"
+                >
                   {word}
                 </motion.span>
               ))}
@@ -107,29 +114,44 @@ export default function HomePage() {
           </motion.p>
 
           {/* Sub-headline */}
-          <motion.p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto pt-2" variants={itemVariants}>
+          <motion.p
+            className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto pt-2"
+            variants={itemVariants}
+          >
             Goes beyond static scans to autonomously detect, test, and patch complex business logic flaws.
           </motion.p>
 
-          {/* Buttons */}
+          {/* Auth-aware Buttons */}
           <motion.div className="pt-8 flex justify-center gap-4" variants={itemVariants}>
-            <a href="/login">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-blue-500/20 transition-all duration-300">
-                  Login
-                </Button>
-              </motion.div>
-            </a>
-            <a href="/signup">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant="outline"
-                  className="border-blue-500 text-blue-400 hover:bg-blue-500/10 font-bold py-3 px-6 rounded-lg transition-all duration-300"
-                >
-                  Sign Up
-                </Button>
-              </motion.div>
-            </a>
+            {isAuthenticated ? (
+              <Link href="/dashboard" passHref>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-blue-500/20 transition-all duration-300">
+                    Go to Your Dashboard
+                  </Button>
+                </motion.div>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" passHref>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-blue-500/20 transition-all duration-300">
+                      Login
+                    </Button>
+                  </motion.div>
+                </Link>
+                <Link href="/signup" passHref>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      variant="outline"
+                      className="border-blue-500 text-blue-400 hover:bg-blue-500/10 font-bold py-3 px-6 rounded-lg transition-all duration-300"
+                    >
+                      Sign Up
+                    </Button>
+                  </motion.div>
+                </Link>
+              </>
+            )}
           </motion.div>
 
           {/* Cards */}

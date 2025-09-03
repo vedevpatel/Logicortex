@@ -1,9 +1,15 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle2, AlertTriangle, ExternalLink } from 'lucide-react';
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
+  ExternalLink,
+  Settings,
+} from "lucide-react";
 
 interface Organization {
   id: number;
@@ -23,70 +29,84 @@ interface Repository {
 export default function DashboardPage() {
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [repositories, setRepositories] = useState<Repository[]>([]);
-  const [installUrl, setInstallUrl] = useState('');
+  const [installUrl, setInstallUrl] = useState("");
+  const [managementUrl, setManagementUrl] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
   const installationEffectRan = useRef(false);
 
-  const token = localStorage.getItem('jwt_token');
+  const token = localStorage.getItem("jwt_token");
 
-  // Fetch repositories for the organization
-  const fetchRepositories = useCallback(async (token: string) => {
-    try {
-      const res = await fetch('http://localhost:8000/api/v1/github/repositories', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Failed to fetch repositories.');
-      const data = await res.json();
-      setRepositories(data.repositories || []);
-    } catch (err) {
-      if (err instanceof Error) setError(err.message);
-      else setError('Unknown error occurred while fetching repositories.');
-    }
-  }, []);
-
-  // Initialize dashboard (fetch organization and install URL if needed)
   const initializeDashboard = useCallback(async (token: string) => {
     setIsLoading(true);
+    setError(""); // Reset error on each load
     try {
-      const orgRes = await fetch('http://localhost:8000/api/v1/organizations/me', {
+      const orgResponse = await fetch("http://localhost:8000/api/v1/organizations/me", {
         headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
       });
-      if (!orgRes.ok) throw new Error('Failed to fetch organization.');
-      const orgData: Organization[] = await orgRes.json();
+      if (!orgResponse.ok) throw new Error("Failed to fetch organization data.");
 
+      const orgData: Organization[] = await orgResponse.json();
       if (orgData.length > 0) {
         const currentOrg = orgData[0];
         setOrganization(currentOrg);
 
         if (currentOrg.github_installation_id) {
-          await fetchRepositories(token);
-        } else {
-          const urlRes = await fetch('http://localhost:8000/api/v1/github/install-url', {
+          const repoResponse = await fetch("http://localhost:8000/api/v1/github/repositories", {
+            headers: { Authorization: `Bearer ${token}` },
+            cache: "no-store",
+          });
+
+          // --- FIX: handle invalid/revoked installation ---
+          if (repoResponse.status === 404) {
+            setOrganization({ ...currentOrg, github_installation_id: null });
+
+            const urlResponse = await fetch("http://localhost:8000/api/v1/github/install-url", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!urlResponse.ok) throw new Error("Failed to fetch install URL.");
+            const urlData = await urlResponse.json();
+            setInstallUrl(urlData.install_url);
+            return; // stop further execution
+          }
+          // --- END FIX ---
+
+          if (!repoResponse.ok) throw new Error("Failed to fetch repositories.");
+          const repoData = await repoResponse.json();
+          setRepositories(repoData.repositories || []);
+
+          const mgmtUrlResponse = await fetch("http://localhost:8000/api/v1/github/installation-management-url", {
             headers: { Authorization: `Bearer ${token}` },
           });
-          if (!urlRes.ok) throw new Error('Failed to fetch GitHub install URL.');
-          const urlData = await urlRes.json();
+          if (!mgmtUrlResponse.ok) throw new Error("Failed to fetch management URL.");
+          const mgmtUrlData = await mgmtUrlResponse.json();
+          setManagementUrl(mgmtUrlData.management_url);
+        } else {
+          const urlResponse = await fetch("http://localhost:8000/api/v1/github/install-url", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!urlResponse.ok) throw new Error("Failed to fetch install URL.");
+          const urlData = await urlResponse.json();
           setInstallUrl(urlData.install_url);
         }
       }
     } catch (err) {
-      if (err instanceof Error) setError(err.message);
-      else setError('Unknown error occurred while initializing dashboard.');
+      setError(err instanceof Error ? err.message : "An unknown error occurred.");
     } finally {
       setIsLoading(false);
     }
-  }, [fetchRepositories]);
+  }, []);
 
   useEffect(() => {
     if (!token) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
-    const installationId = searchParams.get('installation_id');
+    const installationId = searchParams.get("installation_id");
 
     const processDashboardState = async () => {
       if (installationId && !installationEffectRan.current) {
@@ -94,24 +114,23 @@ export default function DashboardPage() {
         setIsLoading(true);
 
         try {
-          const res = await fetch('http://localhost:8000/api/v1/github/installation-complete', {
-            method: 'POST',
+          const res = await fetch("http://localhost:8000/api/v1/github/installation-complete", {
+            method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({ installation_id: parseInt(installationId) }),
           });
 
-          if (!res.ok) throw new Error('Installation failed.');
+          if (!res.ok) throw new Error("Installation failed.");
           const updatedOrg: Organization = await res.json();
           setOrganization(updatedOrg);
-          await fetchRepositories(token);
+          await initializeDashboard(token);
         } catch (err) {
-          if (err instanceof Error) setError(err.message);
-          else setError('Unknown error occurred during installation.');
+          setError(err instanceof Error ? err.message : "Unknown error occurred during installation.");
         } finally {
-          router.replace('/dashboard', { scroll: false });
+          router.replace("/dashboard", { scroll: false });
           setIsLoading(false);
         }
       } else {
@@ -120,9 +139,8 @@ export default function DashboardPage() {
     };
 
     processDashboardState();
-  }, [searchParams, router, initializeDashboard, fetchRepositories, token]);
+  }, [searchParams, router, initializeDashboard, token]);
 
-  // Render different states: loading, error, connected, or connect GitHub
   const renderContent = () => {
     if (isLoading)
       return (
@@ -143,10 +161,21 @@ export default function DashboardPage() {
     if (organization?.github_installation_id)
       return (
         <div className="space-y-4">
-          <div className="flex items-center text-green-400 text-lg font-semibold">
-            <CheckCircle2 className="mr-2" />
-            GitHub App Connected
+          <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-700">
+            <div className="flex items-center text-green-400 text-lg font-semibold">
+              <CheckCircle2 className="mr-2" />
+              GitHub App Connected
+            </div>
+            <a href={managementUrl} target="_blank" rel="noopener noreferrer">
+              <Button
+                variant="outline"
+                className="border-gray-600 hover:bg-gray-700 hover:text-white"
+              >
+                <Settings className="mr-2 h-4 w-4" /> Manage Repositories
+              </Button>
+            </a>
           </div>
+
           <p className="text-gray-400">Select a repository to begin analysis.</p>
           <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
             {repositories.length > 0 ? (
@@ -159,10 +188,12 @@ export default function DashboardPage() {
                     <p className="font-semibold text-white">{repo.full_name}</p>
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full ${
-                        repo.private ? 'bg-purple-500/20 text-purple-300' : 'bg-green-500/20 text-green-300'
+                        repo.private
+                          ? "bg-purple-500/20 text-purple-300"
+                          : "bg-green-500/20 text-green-300"
                       }`}
                     >
-                      {repo.private ? 'Private' : 'Public'}
+                      {repo.private ? "Private" : "Public"}
                     </span>
                   </div>
                   <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
@@ -173,18 +204,24 @@ export default function DashboardPage() {
                 </div>
               ))
             ) : (
-              <p className="text-gray-500">No repositories found.</p>
+              <p className="text-gray-500">
+                No repositories found. You may need to grant access to more
+                repositories in your GitHub App settings.
+              </p>
             )}
           </div>
         </div>
       );
 
-    // Not connected yet
     return (
       <div>
-        <p className="text-gray-400 mb-4">Connect your GitHub account to start analysis.</p>
+        <p className="text-gray-400 mb-4">
+          Connect your GitHub account to start analysis.
+        </p>
         <a href={installUrl}>
-          <Button className="bg-indigo-500 hover:bg-indigo-600 text-white">Connect to GitHub</Button>
+          <Button className="bg-indigo-500 hover:bg-indigo-600 text-white">
+            Connect to GitHub
+          </Button>
         </a>
       </div>
     );
@@ -195,12 +232,16 @@ export default function DashboardPage() {
       <div className="max-w-5xl mx-auto">
         <header className="mb-8 text-white">
           <h1 className="text-4xl font-extrabold mb-2 drop-shadow-md">
-            {organization ? `Dashboard for ${organization.name}` : 'Dashboard'}
+            {organization ? `Dashboard for ${organization.name}` : "Dashboard"}
           </h1>
-          <p className="text-gray-400">Manage your connected repositories and analysis.</p>
+          <p className="text-gray-400">
+            Manage your connected repositories and analysis.
+          </p>
         </header>
         <main className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-3xl border border-gray-700">
-          <h2 className="text-2xl font-semibold text-white mb-4">GitHub Integration</h2>
+          <h2 className="text-2xl font-semibold text-white mb-4">
+            GitHub Integration
+          </h2>
           {renderContent()}
         </main>
       </div>

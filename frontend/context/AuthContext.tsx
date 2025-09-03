@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { createContext, useState, useEffect, ReactNode, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: number;
@@ -25,19 +25,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const verifyToken = useCallback(async (token: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/users/me', {
+      const response = await fetch("http://localhost:8000/api/v1/users/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
       } else {
-        localStorage.removeItem('jwt_token');
+        localStorage.removeItem("jwt_token");
         setUser(null);
       }
     } catch (error) {
       console.error("Token verification failed", error);
-      localStorage.removeItem('jwt_token');
+      localStorage.removeItem("jwt_token");
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem("jwt_token");
     if (token) {
       verifyToken(token);
     } else {
@@ -54,15 +54,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [verifyToken]);
 
   const login = (token: string) => {
-    localStorage.setItem('jwt_token', token);
-    verifyToken(token);
-    router.push('/dashboard');
+    localStorage.setItem("jwt_token", token);
+    // Let useEffect handle fetching user info after reload
+    window.location.href = "/dashboard";
   };
 
   const logout = () => {
-    localStorage.removeItem('jwt_token');
+    localStorage.removeItem("jwt_token");
     setUser(null);
-    router.push('/login');
+    // Redirect to home page instead of login
+    router.push("/");
   };
 
   return (

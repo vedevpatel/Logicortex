@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { BrainCircuit, Home, LogOut, Loader2, LayoutDashboard } from "lucide-react"; // Added LayoutDashboard
+import {
+  BrainCircuit,
+  Home,
+  LogOut,
+  Loader2,
+  LayoutDashboard,
+  Users,
+} from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -47,6 +54,13 @@ export default function DashboardLayout({
               </Link>
             </li>
             <li>
+              <Link href="/dashboard/team" passHref>
+                  <Button variant="ghost" className="w-full justify-start text-gray-300 hover:bg-gray-700 hover:text-white">
+                      <Users className="mr-2 h-4 w-4" /> Team
+                  </Button>
+              </Link>
+            </li>
+            <li>
               <Link href="/" passHref>
                 <Button variant="ghost" className="w-full justify-start">
                   <Home className="mr-2 h-4 w-4" /> Main Site
@@ -67,7 +81,6 @@ export default function DashboardLayout({
             </div>
           </div>
         </nav>
-        {/* Main Content */}
         <main className="flex-1 p-8 overflow-auto">{children}</main>
       </div>
     );

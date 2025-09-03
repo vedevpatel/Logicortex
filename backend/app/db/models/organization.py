@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table, DateTime, func
+from sqlalchemy import Column, Integer, String, ForeignKey, Table, DateTime, func, Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from typing import List, Optional, TYPE_CHECKING
 
@@ -8,12 +8,12 @@ if TYPE_CHECKING:
     from .user import User
     from .scan import Scan
 
-# Association Table for the many-to-many relationship between Users and Organizations
 user_organization_association = Table(
     "user_organization_association",
     Base.metadata,
     Column("user_id", ForeignKey("users.id"), primary_key=True),
     Column("organization_id", ForeignKey("organizations.id"), primary_key=True),
+    Column("role", String, default="member") # Can be 'owner', 'admin', or 'member'
 )
 
 class Organization(Base):

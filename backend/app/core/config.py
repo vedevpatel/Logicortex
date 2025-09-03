@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
+
     # OAuth Providers
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str

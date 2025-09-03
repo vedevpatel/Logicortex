@@ -1,9 +1,12 @@
 from sqlalchemy import Column, Integer, String, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 
 from app.db.base_class import Base
-from .organization import user_organization_association
+from app.db.models.organization import user_organization_association
+
+if TYPE_CHECKING:
+    from .organization import Organization
 
 class User(Base):
     __tablename__ = "users"
@@ -15,8 +18,9 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships to Organization
-    owned_organizations: Mapped[List["Organization"]] = relationship(back_populates="owner")
-    
+    owned_organizations: Mapped[List["Organization"]] = relationship("Organization", back_populates="owner")
     organizations: Mapped[List["Organization"]] = relationship(
-        secondary=user_organization_association, back_populates="members"
+        "Organization",
+        secondary=user_organization_association, 
+        back_populates="members"
     )

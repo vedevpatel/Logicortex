@@ -19,7 +19,7 @@ export default function SignupPage() {
         e.preventDefault();
         setError('');
 
-        const response = await fetch('http://localhost:8000/api/v1/auth/register', {
+        const response = await fetch('http://localhost:8888/api/v1/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
@@ -55,12 +55,12 @@ export default function SignupPage() {
                 
                 {/* Social Login Buttons */}
                 <div className="space-y-4">
-                    <a href="http://localhost:8000/api/v1/auth/google/login" className="block">
+                    <a href="http://localhost:8888/api/v1/auth/google/login" className="block">
                         <Button variant="outline" className="w-full bg-white text-gray-700 hover:bg-gray-100 font-medium">
                             <GoogleIcon /> Continue with Google
                         </Button>
                     </a>
-                    <a href="http://localhost:8000/api/v1/auth/github/login" className="block">
+                    <a href="http://localhost:8888/api/v1/auth/github/login" className="block">
                         <Button variant="outline" className="w-full bg-gray-900/80 text-white hover:bg-gray-700 font-medium border-gray-600">
                             <GitHubIcon /> Continue with GitHub
                         </Button>

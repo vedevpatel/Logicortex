@@ -80,7 +80,7 @@ async def google_login():
     google_auth_url = (
         "https://accounts.google.com/o/oauth2/v2/auth?"
         f"client_id={settings.GOOGLE_CLIENT_ID}"
-        "&redirect_uri=http://localhost:8000/api/v1/auth/google/callback"
+        "&redirect_uri=http://localhost:8888/api/v1/auth/google/callback"
         "&response_type=code"
         "&scope=openid%20email%20profile"
     )
@@ -101,7 +101,7 @@ async def google_callback(code: str, db: Session = Depends(get_db)):
                 "code": code,
                 "client_id": settings.GOOGLE_CLIENT_ID,
                 "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                "redirect_uri": "http://localhost:8000/api/v1/auth/google/callback",
+                "redirect_uri": "http://localhost:8888/api/v1/auth/google/callback",
                 "grant_type": "authorization_code",
             },
         )

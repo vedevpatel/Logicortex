@@ -22,7 +22,6 @@ export const Header = () => {
                 </div>
 
                 <div className="flex items-center space-x-4">
-                    {/* --- THIS LOGIC IS NOW CHANGED --- */}
                     {!isLoading && isAuthenticated && (
                         <>
                             <span className="text-sm text-gray-400 hidden sm:block">Welcome, {user?.email}</span>

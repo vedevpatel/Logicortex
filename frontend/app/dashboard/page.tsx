@@ -62,7 +62,7 @@ export default function DashboardPage() {
 
     const fetchScans = useCallback(async (token: string) => {
         try {
-            const scansResponse = await fetch('http://localhost:8000/api/v1/scans', {
+            const scansResponse = await fetch('http://localhost:8888/api/v1/scans', {
                 headers: { 'Authorization': `Bearer ${token}` },
                 cache: 'no-store',
             });
@@ -76,7 +76,7 @@ export default function DashboardPage() {
         setIsLoading(true);
         setError('');
         try {
-            const orgResponse = await fetch('http://localhost:8000/api/v1/organizations/me', { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' });
+            const orgResponse = await fetch('http://localhost:8888/api/v1/organizations/me', { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' });
             if (!orgResponse.ok) throw new Error('Failed to fetch organization data.');
             const orgData = await orgResponse.json();
 
@@ -86,15 +86,15 @@ export default function DashboardPage() {
                 await fetchScans(token);
 
                 if (currentOrg.github_installation_id) {
-                    const repoResponse = await fetch('http://localhost:8000/api/v1/github/repositories', { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' });
+                    const repoResponse = await fetch('http://localhost:8888/api/v1/github/repositories', { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' });
                     if (!repoResponse.ok) throw new Error('Failed to fetch repositories.');
                     setRepositories((await repoResponse.json()).repositories || []);
 
-                    const mgmtUrlResponse = await fetch('http://localhost:8000/api/v1/github/installation-management-url', { headers: { 'Authorization': `Bearer ${token}` } });
+                    const mgmtUrlResponse = await fetch('http://localhost:8888/api/v1/github/installation-management-url', { headers: { 'Authorization': `Bearer ${token}` } });
                     if (!mgmtUrlResponse.ok) throw new Error('Failed to fetch management URL.');
                     setManagementUrl((await mgmtUrlResponse.json()).management_url);
                 } else {
-                    const urlResponse = await fetch('http://localhost:8000/api/v1/github/install-url', { headers: { 'Authorization': `Bearer ${token}` } });
+                    const urlResponse = await fetch('http://localhost:8888/api/v1/github/install-url', { headers: { 'Authorization': `Bearer ${token}` } });
                     if (!urlResponse.ok) throw new Error('Failed to fetch install URL.');
                     setInstallUrl((await urlResponse.json()).install_url);
                 }
@@ -120,7 +120,7 @@ export default function DashboardPage() {
 
         if (installationId) {
             (async () => {
-                await fetch('http://localhost:8000/api/v1/github/installation-complete', {
+                await fetch('http://localhost:8888/api/v1/github/installation-complete', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ installation_id: parseInt(installationId) }),
@@ -137,7 +137,7 @@ export default function DashboardPage() {
         const token = localStorage.getItem('jwt_token');
         if (!token) return;
         try {
-            const response = await fetch('http://localhost:8000/api/v1/scans', {
+            const response = await fetch('http://localhost:8888/api/v1/scans', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ repository_name: repoName }),

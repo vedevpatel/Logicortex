@@ -1,3 +1,0 @@
-1. Fix up the user flow. After the user signs in, they should be able to navigate back to the home page (add a button for going back)
-2. If a user presses the back button, they should not be prompted to sign in again. 
-3. Figure out what to do about Google Sign In. Any long term benefits?

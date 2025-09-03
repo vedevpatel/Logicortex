@@ -23,6 +23,21 @@ def create_github_jwt() -> str:
     }
     return jwt.encode(payload, settings.GITHUB_PRIVATE_KEY, algorithm="RS256")
 
+
+async def get_installation_access_token(installation_id: int) -> str:
+    """Authenticates as the app and gets a temporary token for a specific installation."""
+    app_jwt = create_github_jwt()
+    async with httpx.AsyncClient() as client:
+        token_url = f"https://api.github.com/app/installations/{installation_id}/access_tokens"
+        headers = {"Authorization": f"Bearer {app_jwt}", "Accept": "application/vnd.github.v3+json"}
+        token_response = await client.post(token_url, headers=headers)
+
+        if token_response.status_code != 201:
+            raise HTTPException(status_code=500, detail="Could not create installation access token")
+        
+        return token_response.json()["token"]
+
+
 @router.get("/install-url")
 def get_github_install_url(current_user: User = Depends(get_current_user)):
     """Returns the URL for a user to install the GitHub App."""

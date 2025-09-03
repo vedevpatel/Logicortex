@@ -52,3 +52,29 @@ def get_organization_scans(
     
     organization = current_user.organizations[0]
     return db.query(Scan).filter(Scan.organization_id == organization.id).order_by(Scan.created_at.desc()).all()
+
+
+@router.get("/{scan_id}", response_model=ScanSchema)
+def get_scan(
+    scan_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Get a specific scan by its ID.
+    """
+    if not current_user.organizations:
+        raise HTTPException(status_code=403, detail="User is not part of an organization.")
+    
+    organization = current_user.organizations[0]
+    
+    scan = db.query(Scan).filter(Scan.id == scan_id).first()
+
+    if not scan:
+        raise HTTPException(status_code=404, detail="Scan not found.")
+
+    # Security check: Ensure the scan belongs to the user's organization
+    if scan.organization_id != organization.id:
+        raise HTTPException(status_code=403, detail="Not authorized to view this scan.")
+
+    return scan

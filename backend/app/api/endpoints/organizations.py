@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.api.deps import get_current_user, get_current_active_admin
 from app.db.models.user import User
 from app.db.models.organization import Organization, user_organization_association
 from app.schemas.organization import Organization as OrganizationSchema
 from app.schemas.member import Member as MemberSchema, MemberUpdate, MemberInvite
-from app.api.endpoints.auth import get_db
+from app.api.deps import get_db, get_current_user, get_current_active_admin # <-- CHANGE THIS IMPORT
+
 
 router = APIRouter()
 

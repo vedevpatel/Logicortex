@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.api.deps import get_current_user
+from app.api.deps import get_db, get_current_user, get_current_active_admin 
 from app.db.models.user import User
 from app.db.models.scan import Scan
 from app.schemas.scan import Scan as ScanSchema, ScanCreate

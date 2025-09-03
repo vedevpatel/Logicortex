@@ -8,9 +8,11 @@ from app.core import security
 from app.db import session
 from app.db.models.user import User
 from app.db.models.organization import Organization
-from app.api.endpoints.auth import get_db
+from app.db.models.organization import Organization, user_organization_association 
+from app.api.deps import get_db
 
 router = APIRouter()
+
 
 @router.get("/github/login")
 async def github_login():
@@ -21,9 +23,10 @@ async def github_login():
     )
     return RedirectResponse(url=github_auth_url)
 
+
 @router.get("/github/callback")
 async def github_callback(code: str, db: Session = Depends(get_db)):
-    """Handles the callback from GitHub, creates a user if needed, and issues a JWT."""
+    """Handles the callback from GitHub, creates a user/org if needed, and issues a JWT."""
     token_url = "https://github.com/login/oauth/access_token"
     user_emails_url = "https://api.github.com/user/emails"
 
@@ -48,27 +51,30 @@ async def github_callback(code: str, db: Session = Depends(get_db)):
         emails_response = await client.get(user_emails_url, headers=headers)
         emails = emails_response.json()
         primary_email = next((email["email"] for email in emails if email["primary"]), None)
-        
-        if not primary_email:
-            raise HTTPException(status_code=400, detail="Could not retrieve primary email from GitHub")
+
+    if not primary_email:
+        raise HTTPException(status_code=400, detail="Could not retrieve primary email from GitHub")
 
     # Step 3: Check if the user exists in our database, or create them
     user = db.query(User).filter(User.email == primary_email).first()
     if not user:
         user = User(email=primary_email, provider="github")
         db.add(user)
-        db.commit()
-        db.refresh(user)
-        
-        # Create a default organization for the new user
-        new_org = Organization(name=f"{primary_email.split('@')[0]}'s Team", owner_id=user.id)
-        new_org.members.append(user)
+        new_org = Organization(name=f"{primary_email.split('@')[0]}'s Team", owner=user)
         db.add(new_org)
+
+        db.commit()  # Commit to assign IDs
+        stmt = user_organization_association.insert().values(
+            user_id=user.id,
+            organization_id=new_org.id,
+            role="owner",
+        )
+        db.execute(stmt)
         db.commit()
 
     # Step 4: Create our own application JWT for the user
     app_jwt = security.create_access_token(data={"sub": user.email})
-    
+
     # Step 5: Redirect the user back to the frontend with our JWT
     frontend_redirect_url = f"http://localhost:3000/auth/callback?token={app_jwt}"
     return RedirectResponse(url=frontend_redirect_url)
@@ -89,7 +95,7 @@ async def google_login():
 
 @router.get("/google/callback")
 async def google_callback(code: str, db: Session = Depends(get_db)):
-    """Handles the callback from Google, creates a user if needed, and issues a JWT."""
+    """Handles the callback from Google, creates a user/org if needed, and issues a JWT."""
     token_url = "https://oauth2.googleapis.com/token"
     user_info_url = "https://www.googleapis.com/oauth2/v1/userinfo"
 
@@ -109,7 +115,7 @@ async def google_callback(code: str, db: Session = Depends(get_db)):
         access_token = token_data.get("access_token")
         if not access_token:
             raise HTTPException(status_code=400, detail="Could not obtain Google access token")
-        
+
         # Step 2: Use the access token to get the user's info
         headers = {"Authorization": f"Bearer {access_token}"}
         user_info_response = await client.get(user_info_url, headers=headers)
@@ -118,24 +124,27 @@ async def google_callback(code: str, db: Session = Depends(get_db)):
 
     if not email:
         raise HTTPException(status_code=400, detail="Could not retrieve email from Google")
-        
+
     # Step 3: Check if the user exists in our database, or create them
     user = db.query(User).filter(User.email == email).first()
     if not user:
         user = User(email=email, provider="google")
         db.add(user)
-        db.commit()
-        db.refresh(user)
-
-        # Step 4: Create a default organization for the new user
-        new_org = Organization(name=f"{email.split('@')[0]}'s Team", owner_id=user.id)
-        new_org.members.append(user)
+        new_org = Organization(name=f"{email.split('@')[0]}'s Team", owner=user)
         db.add(new_org)
+
+        db.commit()  # Commit to assign IDs
+        stmt = user_organization_association.insert().values(
+            user_id=user.id,
+            organization_id=new_org.id,
+            role="owner",
+        )
+        db.execute(stmt)
         db.commit()
 
-    # Step 5: Create our own application JWT for the user
+    # Step 4: Create our own application JWT for the user
     app_jwt = security.create_access_token(data={"sub": user.email})
 
-    # Step 6: Redirect the user back to the frontend with our JWT
+    # Step 5: Redirect the user back to the frontend with our JWT
     frontend_redirect_url = f"http://localhost:3000/auth/callback?token={app_jwt}"
     return RedirectResponse(url=frontend_redirect_url)

@@ -7,8 +7,14 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.db import session
 from app.db.models.user import User
-from app.api.endpoints.auth import get_db
 from app.db.models.organization import user_organization_association
+
+def get_db():
+    db = session.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"/api/v1/auth/login"
@@ -25,19 +31,18 @@ def get_current_user(
         if email is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
+                detail="Could not validate credentials - no email",
             )
     except (JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            detail="Could not validate credentials - invalid token",
         )
     
     user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
-
 
 def get_current_active_admin(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """
@@ -47,7 +52,6 @@ def get_current_active_admin(current_user: User = Depends(get_current_user), db:
     if not current_user.organizations:
         raise HTTPException(status_code=403, detail="User is not part of an organization")
 
-    # Check the user's role in their first organization
     organization = current_user.organizations[0]
     stmt = db.query(user_organization_association.c.role).filter(
         user_organization_association.c.user_id == current_user.id,

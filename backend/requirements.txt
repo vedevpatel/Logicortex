@@ -10,3 +10,4 @@ python-jose[cryptography]
 pydantic[email]
 httpx
 PyJWT
+google-generativeai

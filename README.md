@@ -1,8 +1,9 @@
 # Logicortex 🧠
-
+<img width="1754" height="1754" alt="Logicortex" src="https://github.com/user-attachments/assets/15323f6e-c25f-493c-a3b7-6363914bf04f" />
 Welcome to the official repository for Logicortex, an autonomous application security platform designed to find and fix complex business logic vulnerabilities.
 
 ## 📜 About The Project
+
 
 Logicortex operates as an active, intelligent partner within the software development lifecycle. Instead of just matching known bad patterns, it uses a team of specialized AI agents to understand the intended behavior of an application's code and then identify, fix, and even predict any actions that would violate that intent.
 

@@ -1,4 +1,3 @@
-# Logicortex 🧠
 <img width="1754" height="1754" alt="Logicortex" src="https://github.com/user-attachments/assets/15323f6e-c25f-493c-a3b7-6363914bf04f" />
 Welcome to the official repository for Logicortex, an autonomous application security platform designed to find and fix complex business logic vulnerabilities.
 

@@ -197,7 +197,7 @@ def run_scan(self, scan_id: int):
                     added += 1
                 if len(selected_files) >= MAX_FILES_TO_ANALYZE * 2:
                     break
-
+            
             # Deduplicate and cap
             seen = set()
             final_selected = []
@@ -248,14 +248,17 @@ def run_scan(self, scan_id: int):
                         "```\n"
                     )
 
-                    def submit(prompt_local, relpath_local):
+                    # --- CHANGE 1: Modified `submit` function to accept and return the code snippet ---
+                    def submit(prompt_local, relpath_local, snippet_local):
                         try:
                             res = llm_analyze_chunk(prompt_local)
                         except Exception as e:
                             res = {"ok": False, "json": None, "raw": str(e)}
-                        return {"file": relpath_local, "result": res}
+                        # Return the original snippet alongside the result
+                        return {"file": relpath_local, "result": res, "snippet": snippet_local}
 
-                    futures.append(executor.submit(submit, prompt, f["relpath"]))
+                    # Pass the snippet to the submit function
+                    futures.append(executor.submit(submit, prompt, f["relpath"], snippet))
 
             logger.info("WORKER: Waiting for %d LLM tasks to complete", len(futures))
 
@@ -269,21 +272,35 @@ def run_scan(self, scan_id: int):
                     continue
                 file_key = out["file"]
                 per_file_agg.setdefault(file_key, {"chunks": [], "file": file_key})
-                per_file_agg[file_key]["chunks"].append(out["result"])
+                
+                # --- CHANGE 2: Store the result and snippet together for later processing ---
+                per_file_agg[file_key]["chunks"].append({
+                    "result": out["result"],
+                    "snippet": out.get("snippet", "") # use .get for safety
+                })
 
             # Combine per-file chunks into a single file analysis entry
             for key, val in per_file_agg.items():
                 combined_analysis = []
                 raw_chunks = []
-                for chunk_res in val["chunks"]:
+                # --- CHANGE 3: Iterate through the object containing both result and snippet ---
+                for chunk_obj in val["chunks"]:
+                    chunk_res = chunk_obj["result"]
+                    snippet = chunk_obj["snippet"]
+                    
                     if chunk_res.get("ok") and chunk_res.get("json") and isinstance(chunk_res["json"], dict):
                         entries = chunk_res["json"].get("analysis") or []
                         if isinstance(entries, list):
+                            # --- CHANGE 4: Inject the code_snippet into each finding ---
+                            for entry in entries:
+                                if isinstance(entry, dict): # Ensure entry is a dict before adding
+                                    entry["code_snippet"] = snippet
                             combined_analysis.extend(entries)
                         else:
                             raw_chunks.append(chunk_res.get("raw"))
                     else:
                         raw_chunks.append(chunk_res.get("raw"))
+
                 per_file_results.append({
                     "file": key,
                     "analysis": combined_analysis,

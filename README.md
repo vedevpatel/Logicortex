@@ -14,7 +14,7 @@ Logicortex operates as an active, intelligent partner within the software develo
 * **Backend**: Python with FastAPI
 * **Database**: PostgreSQL
 * **Async Tasks**: Celery with Redis
-* **AI Models**: TBD
+* **AI Models**: Gemini 1.5 Flash
 * **Symbolic Engine**: Microsoft Z3 SMT Solver
 * **Infrastructure**: Docker
 

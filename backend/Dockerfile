@@ -1,7 +1,13 @@
 FROM python:3.11-slim-bullseye
-RUN apt-get update && apt-get install -y git
+
+# Install git into the container's operating system
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+
+ENV PYTHONPATH /app
 
 # Set the working directory in the container
 WORKDIR /app

@@ -11,3 +11,4 @@ pydantic[email]
 httpx
 PyJWT
 google-generativeai
+z3-solver

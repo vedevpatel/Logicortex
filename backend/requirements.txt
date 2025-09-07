@@ -12,3 +12,4 @@ httpx
 PyJWT
 google-generativeai
 z3-solver
+openai>=1.3.0

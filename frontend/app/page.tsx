@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth"; // Import the auth hook
-
+import BinaryRain from "@/components/BinaryRain";
 // Parent container variants for staggering children
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -66,9 +66,11 @@ export default function HomePage() {
         transition={{ duration: 30, ease: "easeInOut", repeat: Infinity }}
       />
 
+      <BinaryRain />
+
       {/* Main content */}
       <motion.div
-        className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 text-white"
+        className="relative z-20 min-h-screen flex flex-col items-center justify-center p-4 text-white"
         variants={containerVariants}
         initial="hidden"
         animate="visible"

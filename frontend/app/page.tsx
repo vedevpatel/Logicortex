@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth"; // Import the auth hook
 import BinaryRain from "@/components/BinaryRain";
+
 // Parent container variants for staggering children
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -86,7 +87,7 @@ export default function HomePage() {
 
           {/* Animated Brand Name */}
           <motion.h1
-            className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 pb-4"
+            className="font-brand text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 pb-4"
             variants={containerVariants}
           >
             {brandName.split("").map((letter, index) => (
@@ -98,7 +99,7 @@ export default function HomePage() {
 
           {/* Animated Tagline */}
           <motion.p
-            className="text-2xl md:text-3xl font-bold"
+            className="font-brand text-2xl md:text-3xl font-bold"
             variants={containerVariants}
           >
             <span className="text-gray-300">The Security AI that </span>

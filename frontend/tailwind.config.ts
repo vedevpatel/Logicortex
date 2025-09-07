@@ -18,6 +18,10 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        brand: ['"Orbitron"', 'sans-serif'],     
+      },
+
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

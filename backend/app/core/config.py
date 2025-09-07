@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     GITHUB_PRIVATE_KEY: str
     GOOGLE_API_KEY: Optional[str] = None
     OLLAMA_BASE_URL: str = "http://localhost:11434/v1"
-    OLLAMA_MODEL: str = "llama3"
+    OLLAMA_MODEL: str = "mistral"
 
     class Config:
         env_file = ".env"

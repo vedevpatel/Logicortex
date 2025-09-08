@@ -14,6 +14,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (token: string) => Promise<void>; // Return a promise
   logout: () => void;
+  authFetch: (url: string, options?: RequestInit) => Promise<Response>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -67,8 +68,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     router.push('/');
   };
 
+
+  const authFetch = useCallback(async (url: string, options: RequestInit = {}) => {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+      // Handle case where user is logged out or token is missing
+      logout();
+      throw new Error('User is not authenticated.');
+    }
+
+    const headers = {
+      ...options.headers,
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    };
+
+    return fetch(url, { ...options, headers });
+  }, []); // We can add logout to dependency array if linter complains
+
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated: !!user, user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated: !!user, user, isLoading, login, logout, authFetch }}>
       {children}
     </AuthContext.Provider>
   );

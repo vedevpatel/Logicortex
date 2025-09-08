@@ -160,7 +160,6 @@ def analyze_chunk_with_llm(prompt: str, model_name: str) -> Dict:
             )
             response_text = response.choices[0].message.content
 
-            # --- NEW: Resilient JSON parsing logic ---
             # Use regex to find the JSON blob, even if there's extra text around it.
             # The re.DOTALL flag allows '.' to match newlines.
             match = re.search(r'\{.*\}', response_text, re.DOTALL)

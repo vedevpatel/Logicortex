@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2, AlertTriangle, FileCode, CheckCircle, XCircle, Shield, GitBranch } from 'lucide-react';
@@ -8,9 +8,9 @@ import { Loader2, AlertTriangle, FileCode, CheckCircle, XCircle, Shield, GitBran
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button'; // Added import for Button
 import { CodeSnippet } from '@/components/ui/CodeSnippet';
 
-// --- FINALIZED INTERFACE TO MATCH THE CURRENT BACKEND ---
 interface Finding {
   function_name: string | null;
   required_role: string | null;
@@ -64,9 +64,61 @@ const getRiskBadgeVariant = (riskLevel: string): "destructive" | "secondary" | "
     return 'outline';
 };
 
-// --- FINALIZED COMPONENT TO DISPLAY DESCRIPTIVE FINDINGS ---
+
 const FileFindings = ({ file }: { file: FileAnalysis }) => {
-  const groupedFindings = React.useMemo(() => {
+  const { authFetch } = useAuth();
+  
+  // State to cache suggestions, keyed by a unique finding ID
+  const [suggestions, setSuggestions] = useState<Map<string, string>>(new Map());
+  const [loadingFinding, setLoadingFinding] = useState<string | null>(null);
+  const [selectedFinding, setSelectedFinding] = useState<string | null>(null);
+
+  // Helper to create a unique ID for each finding on the page
+  const getFindingId = (finding: Finding, index: number) => `${finding.issue}-${index}`;
+
+  const handleSuggestFix = async (finding: Finding, index: number) => {
+    const findingId = getFindingId(finding, index);
+
+    // If the user is clicking the same finding that's already open, close it.
+    if (selectedFinding === findingId) {
+      setSelectedFinding(null);
+      return;
+    }
+
+    // Show the suggestion box for this finding
+    setSelectedFinding(findingId);
+
+    // If we already have a suggestion in our cache, do nothing else.
+    if (suggestions.has(findingId)) {
+      return;
+    }
+
+    setLoadingFinding(findingId);
+
+    try {
+      const response = await authFetch("http://localhost:8888/api/v1/remediation/suggest-fix", {
+        method: 'POST',
+        body: JSON.stringify({
+          issue_description: finding.issue,
+          code_snippet: finding.code_snippet,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) { throw new Error(data.detail || "Failed to fetch suggestion."); }
+
+      // Add the new suggestion to our cache
+      setSuggestions(prev => new Map(prev).set(findingId, data.suggested_fix));
+
+    } catch (error) {
+      const errorMsg = `Error: ${error instanceof Error ? error.message : 'Could not retrieve a fix.'}`;
+      setSuggestions(prev => new Map(prev).set(findingId, errorMsg));
+    } finally {
+      setLoadingFinding(null);
+    }
+  };
+
+  const groupedFindings = useMemo(() => {
     return file.analysis.reduce((acc, finding) => {
       const snippet = finding.code_snippet;
       if (!acc.has(snippet)) { acc.set(snippet, []); }
@@ -81,23 +133,52 @@ const FileFindings = ({ file }: { file: FileAnalysis }) => {
         <div key={groupIndex} className="mb-6 last:mb-2 rounded-lg bg-gray-900/30 p-4 border border-gray-700/50">
           <CodeSnippet language="typescript" code={snippet} />
           <div className="pl-2 pt-3">
-            {findings.map((finding, findIndex) => (
-              <div key={findIndex} className="mb-4 last:mb-0 border-l-2 border-yellow-400/30 pl-4">
-                <h4 className="font-semibold text-lg text-yellow-300">{finding.issue}</h4>
-                <div className="flex items-center flex-wrap gap-x-4 gap-y-2 my-2 text-sm text-gray-300">
-                  {finding.function_name && <span>Function: <span className="font-mono bg-gray-700/50 px-2 py-1 rounded">{finding.function_name}</span></span>}
-                  {finding.required_role && <span>Required Role: <Badge variant={getRoleBadgeVariant(finding.required_role)}>{finding.required_role}</Badge></span>}
-                  {finding.severity && <span>Severity: <Badge variant="secondary">{finding.severity}</Badge></span>}
+            {findings.map((finding, findIndex) => {
+              const findingId = getFindingId(finding, findIndex);
+              return (
+                <div key={findIndex} className="mb-4 last:mb-0 border-l-2 border-yellow-400/30 pl-4">
+                  <div className="flex justify-between items-start">
+                      <h4 className="font-semibold text-lg text-yellow-300 flex-1 mr-4">{finding.issue}</h4>
+                      <Button variant="ghost" size="sm" onClick={() => handleSuggestFix(finding, findIndex)} disabled={loadingFinding === findingId}>
+                         {loadingFinding === findingId ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : '✨'} Suggest a Fix
+                      </Button>
+                  </div>
+                  <div className="flex items-center flex-wrap gap-x-4 gap-y-2 my-2 text-sm text-gray-300">
+                    {finding.function_name && <span>Function: <span className="font-mono bg-gray-700/50 px-2 py-1 rounded">{finding.function_name}</span></span>}
+                    {finding.required_role && <span>Required Role: <Badge variant={getRoleBadgeVariant(finding.required_role)}>{finding.required_role}</Badge></span>}
+                    {finding.severity && <span>Severity: <Badge variant="secondary">{finding.severity}</Badge></span>}
+                  </div>
+                  <p className="text-gray-400 mb-2 text-sm">{finding.notes}</p>
+
+                  {/* This logic now reads from the cache */}
+                  {selectedFinding === findingId && (
+                    <div className="mt-4">
+                      {loadingFinding === findingId ? (
+                        <div className="flex items-center text-sm text-gray-400">
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generating suggestion...
+                        </div>
+                      ) : (
+                        suggestions.has(findingId) && (
+                          <div>
+                            <h5 className="font-semibold text-gray-300 mb-2">Suggested Fix:</h5>
+                            <CodeSnippet language="typescript" code={suggestions.get(findingId)!} className="bg-green-900/40 border border-green-700/50" />
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
-                <p className="text-gray-400 mb-2 text-sm">{finding.notes}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       ))}
     </AccordionContent>
   );
 };
+
+
 
 export default function ScanResultPage() {
   const params = useParams();

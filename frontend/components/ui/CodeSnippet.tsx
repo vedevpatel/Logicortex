@@ -3,6 +3,7 @@
 import React from "react";
 import { PrismLight as SyntaxHighlighterBase, SyntaxHighlighterProps } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import 'prismjs/themes/prism-okaidia.css';
 
 // Register all languages
 import js from "react-syntax-highlighter/dist/esm/languages/prism/javascript";
@@ -85,17 +86,18 @@ const SyntaxHighlighter: any = SyntaxHighlighterBase;
 interface CodeSnippetProps {
   language: string;
   code: string;
+  className?: string;
 }
 
-export const CodeSnippet = ({ language, code }: CodeSnippetProps) => {
+export const CodeSnippet = ({ language, code, className = "" }: CodeSnippetProps) => {
   return (
-    <div className="my-4 rounded-md overflow-hidden bg-[#1e1e1e] border border-gray-700">
+    <div className={`my-4 rounded-md overflow-hidden border border-gray-700 ${className}`}>
       <SyntaxHighlighter
         language={language}
         style={vscDarkPlus}
         showLineNumbers
         wrapLines
-        customStyle={{ margin: 0, padding: "1rem", backgroundColor: "#1e1e1e" }}
+        customStyle={{ margin: 0, padding: "1rem", backgroundColor: "transparent" }}
         codeTagProps={{ style: { fontFamily: '"Fira Code", monospace' } }}
       >
         {code}

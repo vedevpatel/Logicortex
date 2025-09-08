@@ -1,12 +1,12 @@
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import Optional, Dict, Any, TYPE_CHECKING
+from typing import Optional, Dict, Any, TYPE_CHECKING, List
 
 from app.db.base_class import Base
 
 if TYPE_CHECKING:
     from .organization import Organization
-
+    from .finding import Finding
 class Scan(Base):
     __tablename__ = "scans"
 
@@ -19,3 +19,9 @@ class Scan(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     organization: Mapped["Organization"] = relationship("Organization", back_populates="scans")
+    
+    findings: Mapped[List["Finding"]] = relationship(
+        "Finding",
+        back_populates="scan",
+        cascade="all, delete-orphan"
+    )

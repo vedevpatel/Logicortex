@@ -1,12 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.db.session import engine
 from app.db.models import Base 
-from app.api.endpoints import auth, oauth, organizations, github, users, scans
-from app.api.endpoints import remediation
-Base.metadata.create_all(bind=engine)
-
+from app.api.endpoints import (
+    auth, oauth, organizations, github, users, scans, remediation, findings
+)
 
 app = FastAPI(
     title="Logicortex API",
@@ -37,3 +35,8 @@ app.include_router(github.router, prefix="/api/v1/github", tags=["github"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(scans.router, prefix="/api/v1/scans", tags=["scans"])
 app.include_router(remediation.router, prefix="/api/v1/remediation", tags=["remediation"])
+app.include_router(findings.router, prefix="/api/v1/findings", tags=["findings"])
+
+
+
+

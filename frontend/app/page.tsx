@@ -106,7 +106,7 @@ const SimpleFillButton = ({ children }: { children: React.ReactNode }) => {
 };
 
 
-// New Component for the specific Shield + Check animation
+// Component for the specific Shield + Check animation
 const AnimatedShield = ({ isHovered }: { isHovered: boolean }) => {
   const rgb = "34, 197, 94"; // Green
 
@@ -182,20 +182,23 @@ const AnimatedIcon = ({ Icon, color, isHovered }: { Icon: any, color: string, is
     "yellow": "250, 204, 21"
   };
   
-  const rgb = colorMap[color] || "250, 204, 21";
+  const rgb = colorMap[color] || "250, 204, 21"; // Default to yellow
   
   return (
+    // FIX 1: Added h-8 w-8 to constrain the component's size, fixing the pulse position.
     <motion.div
-      className="relative"
+      className="relative h-8 w-8"
       animate={{
         scale: isHovered ? 1.2 : 1,
-        rotate: isHovered ? [0, -10, 10, -10, 0] : 0,
+        // FIX 2: Matched the rotation animation to the shield's "jiggle".
+        rotate: isHovered ? [0, -10, 10, -10, 0] : 0, 
       }}
       transition={{
         scale: { type: "spring", stiffness: 300, damping: 15 },
         rotate: { duration: 0.5, ease: "easeInOut" }
       }}
     >
+      {/* Background Glow - This creates the soft, widespread glow */}
       <motion.div
         className="absolute inset-0 rounded-full blur-xl"
         animate={{
@@ -204,22 +207,25 @@ const AnimatedIcon = ({ Icon, color, isHovered }: { Icon: any, color: string, is
         }}
         transition={{ duration: 0.3 }}
       />
-      
+
+      {/* Drop Shadow Container for the Icon itself */}
       <motion.div
+        className="relative h-full w-full"
         animate={{
-          filter: isHovered ? "drop-shadow(0 0 20px rgba(" + rgb + ", 0.8))" : "drop-shadow(0 0 0px rgba(" + rgb + ", 0))",
+          // FIX 3: Reduced drop-shadow size and opacity to match the shield's subtle glow.
+          filter: isHovered ? `drop-shadow(0 0 15px rgba(${rgb}, 0.6))` : `drop-shadow(0 0 0px rgba(${rgb}, 0))`,
         }}
         transition={{ duration: 0.3 }}
       >
         <Icon 
-          className={`h-8 w-8 relative z-10 transition-colors duration-300 ${
+          className={`h-8 w-8 transition-colors duration-300 ${
             isHovered ? "text-yellow-500" : "text-yellow-400"
           }`}
-          // Animate strokeWidth for a "more solid" feel
           strokeWidth={isHovered ? 2.5 : 2}
         />
       </motion.div>
       
+      {/* Pulsing Ring effect - now correctly positioned */}
       {isHovered && (
         <motion.div
           className="absolute inset-0 flex items-center justify-center"
@@ -227,14 +233,14 @@ const AnimatedIcon = ({ Icon, color, isHovered }: { Icon: any, color: string, is
           animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 0] }}
           transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0.2 }}
         >
-          <div className={`w-8 h-8 rounded-full border-2 ${
-            color === "green" ? "border-green-400" : "border-yellow-400"
-          }`} />
+          <div className="w-8 h-8 rounded-full border-2 border-yellow-400" /> 
         </motion.div>
       )}
     </motion.div>
   );
 };
+
+
 
 
 export default function HomePage() {

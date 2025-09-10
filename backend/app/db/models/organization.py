@@ -6,8 +6,8 @@ from app.db.base_class import Base
 
 if TYPE_CHECKING:
     from .user import User
-    from .scan import Scan
-
+    
+    
 user_organization_association = Table(
     "user_organization_association",
     Base.metadata,
@@ -31,4 +31,3 @@ class Organization(Base):
         secondary=user_organization_association, 
         back_populates="organizations"
     )
-    scans: Mapped[List["Scan"]] = relationship("Scan", back_populates="organization")

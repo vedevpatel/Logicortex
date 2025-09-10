@@ -36,7 +36,7 @@ const cardVariants = {
 // A button that fills slowly, then glows and pops.
 const SimpleFillButton = ({ children }: { children: React.ReactNode }) => {
   // We define the fill duration here to easily sync the animations
-  const fillDuration = 0.7;
+  const fillDuration = 0.25;
 
   const buttonVariants = {
     rest: {
@@ -185,12 +185,12 @@ const AnimatedIcon = ({ Icon, color, isHovered }: { Icon: any, color: string, is
   const rgb = colorMap[color] || "250, 204, 21"; // Default to yellow
   
   return (
-    // FIX 1: Added h-8 w-8 to constrain the component's size, fixing the pulse position.
+    // h-8 w-8 to constrain the component's size, fixing the pulse position.
     <motion.div
       className="relative h-8 w-8"
       animate={{
         scale: isHovered ? 1.2 : 1,
-        // FIX 2: Matched the rotation animation to the shield's "jiggle".
+        // Matching the rotation animation to the shield's "jiggle".
         rotate: isHovered ? [0, -10, 10, -10, 0] : 0, 
       }}
       transition={{

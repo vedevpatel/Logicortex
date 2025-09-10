@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.models import Base 
 from app.api.endpoints import (
-    auth, oauth, organizations, github, users, scans, remediation, findings
+    auth, oauth, organizations, github, users
 )
 
 app = FastAPI(
@@ -33,9 +33,6 @@ app.include_router(oauth.router, prefix="/api/v1/auth", tags=["oauth"])
 app.include_router(organizations.router, prefix="/api/v1/organizations", tags=["organizations"])
 app.include_router(github.router, prefix="/api/v1/github", tags=["github"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
-app.include_router(scans.router, prefix="/api/v1/scans", tags=["scans"])
-app.include_router(remediation.router, prefix="/api/v1/remediation", tags=["remediation"])
-app.include_router(findings.router, prefix="/api/v1/findings", tags=["findings"])
 
 
 

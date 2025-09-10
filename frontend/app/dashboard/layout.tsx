@@ -40,7 +40,7 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen bg-gray-900 text-white flex">
         {/* Sidebar Navigation */}
-        <nav className="w-64 bg-gray-950/50 border-r border-gray-800 p-4 flex flex-col">
+        <nav className="w-25 bg-gray-950/50 border-r border-gray-800 p-4 flex flex-col">
           <div className="flex items-center mb-8">
             <BrainCircuit className="h-8 w-8 text-blue-400 mr-2" />
             <span className="font-bold text-xl">Logicortex</span>
